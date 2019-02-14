@@ -3,7 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 
 const routes: Routes = [
-  { path : '**', component:ChatbotComponent}
+  {
+    path : '**', component:ChatbotComponent
+  }
 ];
 
 @NgModule({
