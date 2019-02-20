@@ -3,12 +3,7 @@ var WelcomeMsg = "Hi, I am OneConnectChatBot!. How can I help you?";
 
 
 function addBr(text){
-    
-    console.log("addBr");
-    console.log(text);
-
     return text.replace(/\n/g, "<br />");
-
 }
 
 
@@ -121,12 +116,8 @@ function showBotMessage(msg){
         if (msg.text !== null && msg.text !== undefined){
             text = msg.text;
         }else if(msg.image !== null && msg.image !== undefined){
-
-  
-
             image = new Image();
             image.src = msg.image;
-            
         }else if(msg.buttons !== null && msg.buttons !== undefined){
             buttons = msg.buttons;
         }else if(msg.element !== null && msg.element !== undefined){
@@ -135,8 +126,6 @@ function showBotMessage(msg){
             attachment = msg.attachment;
         }
         
-
-
         message = new Message({
             text: text,
             image: image,
@@ -168,16 +157,18 @@ function sayToBot(text){
     document.getElementById("msg_input").placeholder = "Type your messages here..."
     $.post("/chat",
         {
-            //csrfmiddlewaretoken:csrf,
             text:text,
         },
-        function(jsondata, status){
-            if(jsondata["status"]=="success"){
-                response=jsondata["response"];
+        function(jsondata){
 
+            jsondata = JSON.parse(jsondata);
+              
+            if(jsondata["status"]=="success"){    
+                response=jsondata["response"];
                 if(response){showBotMessages(response);}
             }
-    });
+        }
+    );
 }
 
 getMessageText = function () {
