@@ -62,6 +62,13 @@ def run_quickstart():
 @app.route('/')
 def index():
     chatbot.load_data()
+
+    conn = conn_manager.get_conn()
+    df = pd.read_sql_query('select * from announcement', con = conn)
+
+    if conn != None:
+        conn.close()
+
     return render_template('index.html')
 
 

@@ -93,14 +93,12 @@ def process_input(input, response):
         relevant_faq_ids = []
         relevant_match_rates = []
         prep_answers = []
-
         counter = 1
 
         for i in range(3):
             relevant_faq_ids.append(FAQ_ID[top_list[i][0]])
             relevant_match_rates.append(top_list[i][1])      
             prep_answers.append([ FAQ_ANS[top_list[i][0]] , FAQ_TYPE[top_list[i][0]] ])
-
             result[0] += str(i+1) + ". " + FAQ_QN[top_list[i][0]].text + "<br/>"
             counter += 1
   
@@ -128,7 +126,6 @@ def second_confirm(input, prep_answers, response):
     relevant_match_rates = request.cookies.get("relevant_match_rates")
     relevant_match_rates = json.loads(relevant_match_rates, object_pairs_hook = OrderedDict)
     prep_answers = json.loads(prep_answers, object_pairs_hook = OrderedDict)
-    analysis_id = request.cookies.get("analysis_id")
 
     response.set_cookie("raw_qn", expires=0)
     response.set_cookie("relevant_faq_ids", expires=0)
@@ -168,6 +165,4 @@ def second_confirm(input, prep_answers, response):
         resolved[1][0] = prep_answers[3][0]
         resolved[1][1] = prep_answers[3][1]
     
-
-
     return resolved
