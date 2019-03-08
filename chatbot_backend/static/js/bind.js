@@ -28,17 +28,14 @@ Message = function (arg) {
         var content;
         var type;
 
-        console.log("_this");
-        console.log(_this);
-
         if (_this.text !== null){
             type = ".text";
             content = _this.text;
         }else if (_this.image !== null){
             type = ".image";
             content = _this.image;
-        }else if (_this.buttons.length >= 1 && _this.buttons !== undefined){
-            type = ".buttons";
+        }else if (_this.buttons.length >= 1 && _this.buttons.length !== undefined){
+            type = ".button";
             content = _this.buttons;
         }else if (_this.element.length >= 1 && _this.element !== undefined){
             type = ".element";
@@ -48,18 +45,16 @@ Message = function (arg) {
             content = _this.attachment;
         }
 
-        console.log("content");
-        console.log(content);
-
         return function () {
             var $message;
             $message = $($('.message_template').clone().html());
 
             if(type === ".text"){
                 $message.addClass(_this.message_side).find('.text').html(addBr(content));
-            }else{
-
+            }else if(type === ".image"){
                 $message.addClass(_this.message_side).find('.img').html(content);
+            }else if(type === ".button"){      
+                $message.addClass(_this.message_side).find('.button').html(content);          
             }
 
             $('.messages').append($message);
@@ -109,17 +104,31 @@ function showBotMessage(msg){
 
     }else{
         
-
-        console.log("image");
-        console.log(msg.image);
-
         if (msg.text !== null && msg.text !== undefined){
             text = msg.text;
         }else if(msg.image !== null && msg.image !== undefined){
             image = new Image();
             image.src = msg.image;
         }else if(msg.buttons !== null && msg.buttons !== undefined){
-            buttons = msg.buttons;
+
+            console.log("Creating buttons~");
+            
+            for(var i = 0; i < msg.buttons.length ; i++){
+                buttons.push(document.createElement("button"));
+                var reply = msg.buttons[i].payload;
+                var t = document.createTextNode(msg.buttons[i].title);
+                buttons[i].appendChild(t);
+                buttons[i].style.cssText = "margin-right:10px";
+                buttons[i].className += "btn btn-info";
+
+                buttons[i].onclick = function(){pressButton(reply)};  
+                document.body.appendChild(buttons[i]);
+                document.body.appendChild(document.createElement("br"));
+                
+            }
+
+
+            
         }else if(msg.element !== null && msg.element !== undefined){
             element = msg.element;
         }else if (msg.attachment !== null && msg.attachment !== undefined){
@@ -169,6 +178,11 @@ function sayToBot(text){
             }
         }
     );
+}
+
+function pressButton(msg){
+    showUserMessage(msg);
+    sayToBot(msg);
 }
 
 getMessageText = function () {

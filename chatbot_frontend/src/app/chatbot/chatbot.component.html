@@ -17,17 +17,35 @@
                   'left appeared':message.sentBy === 'bot',
                   'right appeared':message.sentBy === 'user' }">
                 <div class="text_wrapper">
-                  <div class={{message.type}} [innerHTML]="message.content"></div>
+                  <div id="contentInside" *ngFor="let content of message.content;">
+
+                    <ng-container *ngIf="message.type == 'button'; else notbutton">
+
+                      <button class="btn btn-info" value="content.title" style="margin-bottom: 10px;" (click)="sendMessage(content.payload)">
+                          {{content.title}}
+                      </button>
+
+                      <br>
+
+                    </ng-container>
+
+                    <ng-template #notbutton>
+                      <div class={{message.type}} [innerHTML]="content">
+                          {{content}}
+                      </div>
+                      <br>
+                    </ng-template>
+
+                  </div>
                 </div>
               </li>
-
             </ng-container>
         </ul>
 
 
         <div class="bottom_wrapper clearfix">
 
-          <app-audio></app-audio>
+          <!-- <app-audio></app-audio> -->
 
           <div class="message_input_wrapper">
 
@@ -38,7 +56,7 @@
           </div>
 
 					<div class="send_message">
-						<div class="text" (click)="sendMessage()">send</div>
+						<div class="text" (click)="sendMessage(null)">send</div>
           </div>
 
         </div>

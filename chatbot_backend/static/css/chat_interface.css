@@ -27,7 +27,7 @@ body {
 }
 
 .chat_window {
-  /*position: absolute;*/
+  position: absolute;
   width: calc(100% - 20px);
   max-width: 800px;
   height: 500px;
@@ -39,6 +39,7 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   background-color: #f8f8f8;
   overflow: hidden;
+  margin:0px;
 }
 
 .top_menu {
@@ -214,9 +215,9 @@ body {
 }
 
 .chat_window{
-	margin-left: 50%;
 	height: calc(100vh - 120px);
 }
+
 .messages{
 	height: calc(100vh - 250px);
 }

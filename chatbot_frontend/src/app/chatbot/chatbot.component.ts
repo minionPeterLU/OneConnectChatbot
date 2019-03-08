@@ -25,27 +25,43 @@ export class ChatbotComponent implements OnInit {
 
 	getMessage(){
 
-		this.chat.getData("welcome_msg").subscribe(data => {
+		// this.chat.getData("welcome_msg").subscribe(data => {
 
-      this.welcomeMsg = data["response"];
+    //   this.welcomeMsg = data["response"];
 
-			const botMessage = new Message("text",this.welcomeMsg,'bot');
-			this.chat.update(botMessage);
+		// 	const botMessage = new Message("text",this.welcomeMsg,'bot');
+		// 	this.chat.update(botMessage);
 
-			console.log(this.welcomeMsg);
+		// 	console.log(this.welcomeMsg);
 
-		} );
-
+    // } );
+    var content = [];
+    var welcomeMsg = "Hi, I am OneConnectChatBot!. How can I help you?";
+    content.push(welcomeMsg);
+    const botMessage = new Message("text",content,'bot');
+    this.chat.update(botMessage);
+    console.log(welcomeMsg);
 	}
 
-	sendMessage(){
+	sendMessage(element : any){
 
 
-		this.sendMsg = {"status":"success","request":this.messageInput};
+    var content = [];
+    console.log(element);
 
-		console.log(this.messageInput);
+    if(element != null){
+      console.log("===========element===========");
+      console.log(element);
+      content.push(element);
+      this.sendMsg = {"status":"success","request":element};
+    }else{
+      content.push(this.messageInput);
+      console.log("===========messageInput===========");
+      console.log(this.messageInput);
+      this.sendMsg = {"status":"success","request":this.messageInput};
+    }
 
-		const userMessage = new Message("text",this.messageInput,'user');
+		const userMessage = new Message("text",content,'user');
 		this.chat.update(userMessage);
 		this.messageInput = "";
 
@@ -58,22 +74,34 @@ export class ChatbotComponent implements OnInit {
 
 				var value : any = this.responseMsgList[i];
 
-				var content: any;
+				var content : any = [];
 				var type : string;
 
 				if(value.text != null){
-					content = value["text"];
+					content.push(value["text"]);
 					type = "text";
 				}else if(value.image != null){
-          content = new Image();
-          content.src = value["image"];
-          content = "<img src="+content.src+'>';
-					type = "img";
+
+          var image = new Image();
+          image.src = value["image"];
+          var imageElement = "<img src="+image.src+'>';
+          type = "img";
+          content.push(imageElement);
+
+				}else if(value.buttons != null){
+
+          content = value["buttons"];
+          type = "button";
+
+          console.log("==============content==============");
+          console.log(content);
+
 				}
 
 				const botMessage = new Message(type,content,'bot');
 				this.chat.update(botMessage);
 
+        console.log("===========Value============")
         console.log(value);
 
 			}

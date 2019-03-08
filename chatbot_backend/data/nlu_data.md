@@ -51,15 +51,6 @@
 - cool, thanks
 - cool thank you
 
-## intent:affirm
-- yes
-- yes sure
-- absolutely
-- for sure
-- yes yes yes
-- definitely
-
-
 ## intent:name
 - My name is [Juste](name)  <!--- Square brackets contain the value of entity while the text in parentheses is a a label of the entity --> 
 - I am [Josh](name)
@@ -91,10 +82,53 @@
 - Please tell me a joke
 - I need to hear a joke
 
+## intent:mood_affirm
+- yes
+- indeed
+- of course
+- that sounds good
+- correct
+- yes sure
+- absolutely
+- for sure
+- yes yes yes
+- definitely
+
+## intent:mood_deny
+- no
+- never
+- I don't think so
+- don't like that
+- no way
+
+## intent:mood_great
+- perfect
+- very good
+- great
+- amazing
+- feeling like a king
+- wonderful
+- I am feeling very good
+- I am great
+- I am amazing
+- I am going to save the world
+- super
+- extremely good
+- so so perfect
+- so good
+- so perfect
+
 ## intent:mood_unhappy
+- my day was horrible
+- I am sad
+- I don't feel very well
+- I am disappointed
+- super sad
+- I'm so sad
 - sad
 - very sad
 - unhappy
-- bad mood
-- upset
-
+- not so good
+- not very good
+- extremly sad
+- so sad

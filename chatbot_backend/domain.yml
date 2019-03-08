@@ -1,5 +1,6 @@
 intents:
   - greet
+  - cheer
   - goodbye
   - mood_affirm
   - mood_deny
@@ -17,10 +18,15 @@ templates:
   utter_greet:
   - text: "Hey! How are you?"
     image: "http://m.plonga.com/uploads/thumbs/tropical-minion-delivery-html5-game.jpg"
+    buttons:
+    - title: "great"
+      payload: "great"
+    - title: "super sad"
+      payload: "super sad"
 
   utter_cheer_up:
   - text: "Here is something to cheer you up:"
-    image: "http://m.plonga.com/uploads/thumbs/tropical-minion-delivery-html5-game.jpg"
+    image: "./assets/images/rilakkuma.gif"
 
   utter_did_that_help:
   - text: "Did that help you?"
