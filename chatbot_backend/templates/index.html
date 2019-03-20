@@ -37,4 +37,14 @@
 
 {% block other_footers %}
 <script src="{{ url_for('static', filename='js/bind.js') }}"></script>
+<script type="text/javascript">
+    window.onbeforeunload = function () {
+        var inputs = document.getElementsByTagName("button");
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].type == "button" || inputs[i].type == "submit") {
+                inputs[i].disabled = true;
+            }
+        }
+    };
+</script>
 {% endblock %}

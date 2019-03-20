@@ -113,18 +113,17 @@ function showBotMessage(msg){
 
             console.log("Creating buttons~");
             
-            for(var i = 0; i < msg.buttons.length ; i++){
+            for(var i = 0; i < msg.buttons.length; i++){
                 buttons.push(document.createElement("button"));
                 var reply = msg.buttons[i].payload;
                 var t = document.createTextNode(msg.buttons[i].title);
                 buttons[i].appendChild(t);
                 buttons[i].style.cssText = "margin-right:10px";
-                buttons[i].className += "btn btn-info";
-
+                buttons[i].className += msg.buttons[i].title+" btn btn-info";
+                buttons[i].value = reply;
                 buttons[i].onclick = function(){pressButton(reply)};  
                 document.body.appendChild(buttons[i]);
                 document.body.appendChild(document.createElement("br"));
-                
             }
 
 

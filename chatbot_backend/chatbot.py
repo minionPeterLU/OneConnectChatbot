@@ -18,8 +18,6 @@ import spacy
 
 
 NLP = spacy.load('en_core_web_lg')
-INTERPRETER = Interpreter.load("models/current/nlu")
-
 FAQ_ID = []
 FAQ_QN = []
 FAQ_ANS = []
@@ -32,10 +30,8 @@ def load_data():
     global FAQ_QN
     global FAQ_ANS
     global FAQ_TYPE
-    global agent
-    interpreter = RasaNLUInterpreter('models/current/nlu')
-    agent = Agent.load('models/current/dialogue', interpreter=interpreter)
-
+    # global agent
+    
     FAQ_ID[:] = []
     FAQ_QN[:] = []
     FAQ_ANS[:] = []
@@ -43,17 +39,44 @@ def load_data():
 
     conn = conn_manager.get_conn()
     cur = conn.cursor()
-    
-    cur.execute("SELECT faq_id, faq_question, faq_answer, faq_type FROM faq ORDER BY faq_id")
-    result = cur.fetchall()
-    for row in result:
-        FAQ_ID.append(row[0])
-        FAQ_QN.append(NLP(row[1]))
-        FAQ_ANS.append(row[2])
-        FAQ_TYPE.append(row[3])
-    cur.close()
-    conn.close()
+    try:
+        cur.execute("SELECT faq_id, faq_question, faq_answer, faq_type FROM faq ORDER BY faq_id")
+        result = cur.fetchall()
+        for row in result:
+            FAQ_ID.append(row[0])
+            FAQ_QN.append(NLP(row[1]))
+            FAQ_ANS.append(row[2])
+            FAQ_TYPE.append(row[3])
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
 
+# Following 3 functions are for storing processed inputs into database
+def store_data(input,faq_id):
+    conn = conn_manager.get_conn()
+    cur = conn.cursor()
+   
+    try:
+        # ==================================================================================
+        # If MySQL analysis table does not have auto-increment use the following code:
+        # analysis_id = 1
+        # cur.execute("SELECT MAX(analysis_id) FROM analysis")
+        # if cur.fetchall()[0][0] is None:
+        #     analysis_id = 1
+        # else:
+        #     analysis_id = cur.fetchall()[0][0] + 1
+        # =================================================================================
+        analysis_id = None
+        analysis_timestamp =  datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
+        cur.execute("INSERT INTO analysis VALUES (%s,%s, %s, %s)", (analysis_id,input, analysis_timestamp, faq_id))
+    except Exception as e:
+        print(e)
+    finally:  
+        cur.close()
+        conn.commit()
+        conn.close()
 
 # Entry point of input from front-end
 def process_input(input, response):
@@ -61,30 +84,13 @@ def process_input(input, response):
     result = ["Sorry, I'm not very sure what you mean.<br/>Are you asking:<br/>","text"]
     
     # load FAQ from Database to NLP pipelines
-    if len(FAQ_QN) == 0:
+    if len(FAQ_QN) == 0 or len(FAQ_ANS) == 0 or len(FAQ_ID) == 0:
         load_data()
-
-    # =============================================================================
-    # 2-Tier handling logic
-    # =============================================================================
-    #   # Check for the need of two-tier handling of asking FAQs
-    # prep_answers = request.cookies.get("prep_answers")
-    # if prep_answers:
-    #     resolved = second_confirm(input, prep_answers, response)
-    #     if resolved[0] != None:
-    #         print("Reach here?")
-    #         print(resolved[1])
-    #         responses = [{'recipient_id': 'default', resolved[1][1] : resolved[1][0]}]
-    #         responses_message = {"status":"success","response":responses}
-    #         response.set_data(json.dumps(responses_message))
-    #         return
-    # ============================================================================
-    # ============================================================================
-
-
+    
+    
     # Put into NLP pipeline
     input_vector = NLP(input)
-            
+    
     # FAQ matching
     top_list = []
     similarity_list = []
@@ -106,8 +112,11 @@ def process_input(input, response):
     if top_list[0][1] >= MATCH_THRESHOLD:     
         result[0] = FAQ_ANS[top_list[0][0]]
         result[1] = FAQ_TYPE[top_list[0][0]]
-
+        faq_id = FAQ_ID[top_list[0][0]]
         print(type(result[0]))
+        store_data(input, faq_id)
+        print("User input recorded!")
+
         if result[1] =="buttons":
             print(result[0])
             # print(len(result[0]))
@@ -129,110 +138,14 @@ def process_input(input, response):
             responses_message = {"status":"success","response":responses}
             response.set_data(json.dumps(responses_message))
     else :
-
+        faq_id = -1
+        store_data(input, faq_id)
+        interpreter = RasaNLUInterpreter('models/current/nlu')
+        agent = Agent.load('models/current/dialogue', interpreter=interpreter)
         responses = agent.handle_message(input)
-        print(responses)
-        # messages = []
-        # for r in responses:
-        #     messages.append(r.get("text"))
-
-        # if len(messages) == 0:                
-        #     messages.append("Sorry I don't understand what you said! Can you rephase your sentence?")
-
-        # response_text = messages[0]
+        
+        if responses == []:
+            responses = [{'recipient_id': 'default', 'text' : 'Sorry, I cound not understand what you mean! Can you say again?'}]
 
         responses_message = {"status":"success","response":responses}
         response.set_data(json.dumps(responses_message))
-
-    # ================================================================
-    # 2-Tier handling logic
-    # ================================================================ 
-    # else:   # All top 3 similar FAQs have low similarity rate
-    #     relevant_faq_ids = []
-    #     relevant_match_rates = []
-    #     prep_answers = []
-    #     counter = 1
-
-    #     for i in range(3):
-    #         relevant_faq_ids.append(FAQ_ID[top_list[i][0]])
-    #         relevant_match_rates.append(top_list[i][1])      
-    #         # prep_answers.append([ FAQ_ANS[top_list[i][0]] , FAQ_TYPE[top_list[i][0]] ])
-    #         prep_answers.append([ FAQ_ANS[top_list[i][0]] , FAQ_TYPE[top_list[i][0]]])
-    #         result[0] += '<button value="'+str(i+1)+'" type="submit" class="btn btn-info" style="margin-bottom:10px" (click)="sayToBot('+str(counter)+')" onClick="sayToBot('+str(counter)+')">' +str(i+1)+". "+FAQ_QN[top_list[i][0]].text + "</button><br/>"
-    #         counter += 1
-  
-    #     result[0] += '<button value="'+str(counter)+'" type="submit" class="btn btn-info" (click)=="sayToBot('+str(counter)+')" onClick="sayToBot('+str(counter)+')">' + str(counter) + ". None of the above</button>"
-    #     unresolved = ["So sorry I don't have an answer for your question.<br/>You may approach our staff for further enquiries.<br/>You can also visit our website at http://www.oneconnectft.com.sg/ </br>Thank you!","text"]
-    #     prep_answers.append(unresolved)
-        
-    #     response.set_cookie("raw_qn", input)
-    #     response.set_cookie("relevant_faq_ids", json.dumps(relevant_faq_ids))
-    #     response.set_cookie("relevant_match_rates", json.dumps(relevant_match_rates))
-    #     response.set_cookie("prep_answers", json.dumps(prep_answers))
-    #     print(prep_answers)
-    # 
-    # ============================================================================
-    # ============================================================================
-
-
-
-# ====================================================================================================
-#
-# Two-tier handling of FAQs
-# def second_confirm(input, prep_answers, response):
-    
-#     print("Start Two-tier handling of FAQs!")
-#     resolved = [None,["How can I help you?","Text"]]
-    
-#     raw_qn = request.cookies.get("raw_qn")
-#     relevant_faq_ids = request.cookies.get("relevant_faq_ids")
-#     relevant_faq_ids = json.loads(relevant_faq_ids, object_pairs_hook = OrderedDict)
-#     relevant_match_rates = request.cookies.get("relevant_match_rates")
-#     relevant_match_rates = json.loads(relevant_match_rates, object_pairs_hook = OrderedDict)
-#     prep_answers = json.loads(prep_answers, object_pairs_hook = OrderedDict)
-
-#     response.set_cookie("raw_qn", expires=0)
-#     response.set_cookie("relevant_faq_ids", expires=0)
-#     response.set_cookie("relevant_match_rates", expires=0)
-#     response.set_cookie("prep_answers", expires=0)
-
-#     right_match_faq = None
-#     right_match_rate = None
-#     input_lower = input.lower()
-#     print("Reach 2-tier handling:")
-#     print(prep_answers)
-
-#     if input_lower == "1" or input_lower == "one" or input_lower == "first":        
-#         right_match_faq = relevant_faq_ids[0]
-#         right_match_rate = relevant_match_rates[0]
-        
-#         resolved[0] = True
-#         resolved[1][0] = prep_answers[0][0]
-#         resolved[1][1] = prep_answers[0][1]
-
-#     elif input_lower == "2" or input_lower == "two" or input_lower == "second":      
-#         right_match_faq = relevant_faq_ids[1]
-#         right_match_rate = relevant_match_rates[1]
-        
-#         resolved[0] = True
-#         resolved[1][                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             0] = prep_answers[1][0]
-#         resolved[1][1] = prep_answers[1][1]
-
-#         print(resolved)
-
-#     elif input_lower == "3" or input_lower == "three" or input_lower == "third": 
-#         right_match_faq = relevant_faq_ids[2]
-#         right_match_rate = relevant_match_rates[2]
-
-#         resolved[0] = True
-#         resolved[1][0] = prep_answers[2][0]
-#         resolved[1][1] = prep_answers[2][1]
-
-#     else:
-#         resolved[0] = False
-#         resolved[1][0] = prep_answers[3][0]
-#         resolved[1][1] = prep_answers[3][1]
-    
-#     return resolved
-#===============================================================================================
-#===============================================================================================

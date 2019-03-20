@@ -47,3 +47,4 @@ pandas
 wtforms
 uwsgi
 pymysql
+mysqlclient
