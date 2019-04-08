@@ -15,7 +15,7 @@
     <link href="../static/css/oneconnect-dashboard.css" rel="stylesheet">
     <link href="../static/css/tablestyle.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="favicon.ico" rel="icon" type="image/x-icon">
+    <!-- <link href="favicon.ico" rel="icon" type="image/x-icon"> -->
 </head>
 
 <body class="fixed-nav sticky-footer" id="page-top" style="background-color:#222d32;opacity:0.95;">
@@ -33,6 +33,20 @@
                         <i class="fa fa-fw fa-dashboard"></i>
                         <span class="nav-link-text">Dashboard</span>
                     </a>
+                </li>
+
+                <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Data Management">
+                    <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#datamanagement" data-parent="#exampleAccordion" style="color:ghostwhite">
+                        <i class="fa fa-fw fa-database"></i>
+                        <span class="nav-link-text">Data Management</span>
+                    </a>
+                    <ul class="sidenav-second-level collapse" id="datamanagement" style="background-color:#222d32;opacity:0.95;">
+                        <li>
+                            <a href="{{'faq_view'}}" style="color:ghostwhite;font-size:14px">
+                                <i class="fa fa-fw fa-database"></i> FAQ Database
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
 
@@ -142,7 +156,7 @@
     <script src="../static/js/jquery-ui.js"></script>
     <script src="../static/js/bootstrap.bundle.min.js"></script>
     <script src="../static/js/jquery.easing.min.js"></script>
-    <script src="../static/js/chatbot-dashboard.min.js"></script>
+    <script src="../static/js/oneconnect-dashboard.min.js"></script>
 
    
     {% block scripts %}{% endblock %}

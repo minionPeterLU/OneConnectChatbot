@@ -83,6 +83,11 @@ class ResetPasswordForm(FlaskForm):
 
 @app.route('/')
 def index():
+    return redirect(url_for('home'))
+
+@app.route('/chatbotUI')
+@cross_origin(support_credentials=True)
+def chatbotUI():
     return render_template('index.html')
 
 @app.route('/welcome_msg',methods=['GET'])
@@ -160,6 +165,7 @@ def logout():
 # The landing Dashboard page for home 
 @app.route('/admin')
 @cross_origin(support_credentials=True)
+@login_required
 def home():
     
     conn = conn_manager.get_conn()    
@@ -284,8 +290,7 @@ def breakdown_analysis():
 
         if not df.empty:
 
-            df['accuracy'] = np.where(df['faq_id']!=-1,1,0)
-            
+            df['accuracy'] = np.where(df['faq_id']!=-1,1,0)            
            
             df = df[df['faq_id'] != 0]
 
@@ -384,6 +389,155 @@ def breakdown_analysis():
             question_analysis_count = question_analysis_count,
             error = 0
             )
+
+# This is the landing page of FAQ Database
+@app.route('/faq_view', methods = ['GET','POST'])
+@login_required
+def faq_view():
+
+    conn = conn_manager.get_conn()
+    cur = conn.cursor()
+    cur2 = conn.cursor()
+
+    cur.execute("SELECT f.faq_id, f.faq_question, f.faq_answer, f.faq_type, fc.faq_category_name FROM faq f LEFT JOIN faq_category fc ON f.faq_type = fc.faq_category_id order by f.faq_id asc")
+    cur2.execute("SELECT * FROM faq_category order by faq_category_id asc")
+    
+    faq_list = cur.fetchall()
+    faq_category = cur2.fetchall()
+    
+    new_faq_category = (("*","All",),)
+    new_faq_category += tuple(faq_category)
+
+    cur.close()
+    cur2.close()    
+    conn.close()
+
+    return render_template('admin_faqview.html',faq = faq_list, faq_category = faq_category, filter_main_category = new_faq_category)
+
+# This is the method to process filter function in FAQ Database page
+@app.route('/faqview_breakdown', methods = ['POST'])
+@login_required
+def faqview_breakdown():
+
+    if request.method == "POST":
+
+        try:
+            faq_category = request.form['faq_category']
+        except Exception:
+            return redirect(url_for('faq_view'))
+        
+        conn = conn_manager.get_conn()
+        cur = conn.cursor()
+        cur2 = conn.cursor()
+
+        if faq_category != "*" :
+            cur.execute("SELECT f.faq_id,f.faq_question,f.faq_answer,f.faq_type, fc.faq_category_name FROM faq f LEFT JOIN faq_category fc ON f.faq_type = fc.faq_category_id where fc.faq_category_id = %s" , [faq_category])
+        else :
+            cur.execute("SELECT f.faq_id,f.faq_question,f.faq_answer,f.faq_type, fc.faq_category_name FROM faq f LEFT JOIN faq_category fc ON f.faq_type = fc.faq_category_id")
+  
+        cur2.execute("SELECT * FROM faq_category order by faq_category_id asc") 
+
+        faq_list = cur.fetchall()
+        faq_category = cur2.fetchall()
+        
+        new_faq_category = (("*","All",),)
+        new_faq_category += tuple(faq_category)
+        
+        cur.close()  
+        cur2.close()
+        conn.close()
+
+        return render_template('admin_faqview.html', faq = faq_list, faq_category = faq_category,filter_main_category = new_faq_category)
+
+# This is the method to process add new faq function in FAQ Database page
+@app.route('/faq_insert', methods = ['POST'])
+@login_required
+def faq_insert():
+
+    if request.method == "POST":
+        try:
+            question = request.form['question']
+            answer = request.form['answer']
+            faq_category_id = request.form['faq_category']
+        except Exception:
+            flash('Please fill in all the inputs before submit.') 
+            return redirect(url_for('faq_view'))
+
+        conn = conn_manager.get_conn()
+        analysis_df = pd.read_sql_query('select * from faq',con=conn)
+        
+        if analysis_df['faq_question'].str.contains(question, regex=False).any():
+            if conn != None:
+                conn.close()
+            flash('Duplicate row found in database.') 
+            return redirect(url_for('faq_view'))
+        
+        cur = conn.cursor()
+        cur.execute("INSERT INTO faq (faq_question, faq_answer, faq_type) VALUES (%s, %s, %s)", (question, answer, faq_category_id))
+        
+        cur.close()
+        conn.commit()
+        conn.close()
+
+        #Sychonize the chatbot NLP 
+        chatbot.load_data()
+        
+        return redirect(url_for('faq_view'))
+
+# This is the method to process delete exist row of faq in FAQ Database page
+@app.route('/faq_delete', methods = ['POST'])
+@login_required
+def faq_delete():
+    if request.method == 'POST':
+
+        conn = conn_manager.get_conn()
+        cur = conn.cursor()
+        
+        faq_id = request.form['faq_id']
+     
+        cur.execute("DELETE FROM faq WHERE faq_id=%s", [faq_id])
+
+        cur.close()
+        conn.commit()
+        conn.close()
+
+        #Sychonize the chatbot NLP 
+        chatbot.load_data() 
+        
+        return redirect(url_for('faq_view'))
+
+# This is the method to process update exist row of faq in FAQ Database page
+@app.route('/faq_update',methods = ['POST'])
+@login_required
+def faq_update():
+
+    if request.method == 'POST':
+        try:
+            faq_id = request.form["faq_id"]
+            question = request.form['question']
+            answer = request.form['answer']
+            faq_category_id = request.form['faq_category']
+        except Exception:
+            flash('Please select a category!') 
+            return redirect(url_for('faq_view'))
+
+        conn = conn_manager.get_conn() 
+        cur = conn.cursor()
+
+        cur.execute("""
+               UPDATE faq
+               SET faq_question=%s, faq_answer=%s, faq_type=%s
+               WHERE faq_id=%s
+            """, (question, answer, faq_category_id,faq_id))
+        
+        cur.close()
+        conn.commit()
+        conn.close()
+
+        #Sychonize the chatbot NLP 
+        chatbot.load_data()
+        
+        return redirect(url_for('faq_view'))
 
 @app.route("/chat",methods=['POST'])
 @cross_origin(support_credentials=True)

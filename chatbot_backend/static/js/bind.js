@@ -121,7 +121,7 @@ function showBotMessage(msg){
                 buttons[i].style.cssText = "margin-right:10px";
                 buttons[i].className += msg.buttons[i].title+" btn btn-info";
                 buttons[i].value = reply;
-                buttons[i].onclick = function(){pressButton(reply)};  
+                buttons[i].onclick = ()=>pressButton(buttons[i].value);  
                 document.body.appendChild(buttons[i]);
                 document.body.appendChild(document.createElement("br"));
             }

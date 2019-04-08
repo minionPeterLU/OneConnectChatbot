@@ -18,6 +18,8 @@ import spacy
 
 
 NLP = spacy.load('en_core_web_lg')
+interpreter = RasaNLUInterpreter('models/current/nlu')
+agent = Agent.load('models/current/dialogue', interpreter=interpreter)
 FAQ_ID = []
 FAQ_QN = []
 FAQ_ANS = []
@@ -40,7 +42,7 @@ def load_data():
     conn = conn_manager.get_conn()
     cur = conn.cursor()
     try:
-        cur.execute("SELECT faq_id, faq_question, faq_answer, faq_type FROM faq ORDER BY faq_id")
+        cur.execute("SELECT f.faq_id, f.faq_question, f.faq_answer, fc.faq_category_name as faq_type FROM faq f LEFT OUTER JOIN faq_category fc on f.faq_type = fc.faq_category_id ORDER BY faq_id")
         result = cur.fetchall()
         for row in result:
             FAQ_ID.append(row[0])
@@ -90,7 +92,9 @@ def process_input(input, response):
     
     # Put into NLP pipeline
     input_vector = NLP(input)
-    
+    print("=========NLP===========")
+    print(input_vector)
+    # print(input_vector.to_json())
     # FAQ matching
     top_list = []
     similarity_list = []
@@ -137,11 +141,11 @@ def process_input(input, response):
             responses = [{'recipient_id': 'default', result[1] : result[0]}]
             responses_message = {"status":"success","response":responses}
             response.set_data(json.dumps(responses_message))
+            print(responses_message)
     else :
         faq_id = -1
         store_data(input, faq_id)
-        interpreter = RasaNLUInterpreter('models/current/nlu')
-        agent = Agent.load('models/current/dialogue', interpreter=interpreter)
+
         responses = agent.handle_message(input)
         
         if responses == []:
