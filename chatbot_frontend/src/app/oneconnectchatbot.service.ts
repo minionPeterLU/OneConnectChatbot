@@ -1,5 +1,4 @@
 import { BehaviorSubject } from 'rxjs';
-import { bypassSanitizationTrustResourceUrl } from '@angular/core/src/sanitization/bypass';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';

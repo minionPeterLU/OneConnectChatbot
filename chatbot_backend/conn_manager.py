@@ -1,17 +1,10 @@
 import pymysql
 
-# Server database connection
-# HOST = 'fyp.cshcsxar5far.ap-southeast-1.rds.amazonaws.com'
-# DBNAME = 'chatbot'
-# USER = 'zhzhang'
-# PASSWORD = 'sqcgcwddhyhh'
-# PORT = '5432'
-
 # Local database connection
-HOST = 'localhost'
-DBNAME = 'chatbot'
-USER = 'root'
-PASSWORD = 'Ljn@920506'
+HOST = 'localhost' # host url
+DBNAME = 'chatbot' # your database name
+USER = 'root'      # your username
+PASSWORD = 'password' # your password
 PORT = 3306
 
 def get_conn():

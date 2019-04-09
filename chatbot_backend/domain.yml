@@ -6,17 +6,18 @@ intents:
   - mood_deny
   - mood_great
   - mood_unhappy
-
+  - name 
 actions:
 - utter_greet
 - utter_cheer_up
 - utter_did_that_help
 - utter_happy
 - utter_goodbye
+- utter_name
 
 templates:
   utter_greet:
-  - text: "Hey! How are you?"
+  - text: "Nice to you meet you {name}. How can I help?"
     image: "http://m.plonga.com/uploads/thumbs/tropical-minion-delivery-html5-game.jpg"
     buttons:
     - title: "great"
@@ -36,3 +37,6 @@ templates:
 
   utter_goodbye:
   - text: "Bye"
+
+  utter_name:
+  - text: "Hey there! Tell me your name."

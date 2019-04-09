@@ -25,3 +25,7 @@
 ## say goodbye
 * goodbye
   - utter_goodbye
+
+## self introduction
+* name
+  - utter_name   

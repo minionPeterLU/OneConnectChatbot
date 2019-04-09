@@ -13,9 +13,8 @@ import conn_manager
 import json
 import requests
 import re
-# import speech_recognition as sr
 import spacy
-
+# import speech_recognition as sr
 
 NLP = spacy.load('en_core_web_lg')
 interpreter = RasaNLUInterpreter('models/current/nlu')
@@ -92,10 +91,9 @@ def process_input(input, response):
     
     # Put into NLP pipeline
     input_vector = NLP(input)
-    print("=========NLP===========")
+    print("=========User Input===========")
     print(input_vector)
-    # print(input_vector.to_json())
-    # FAQ matching
+
     top_list = []
     similarity_list = []
     
@@ -117,22 +115,18 @@ def process_input(input, response):
         result[0] = FAQ_ANS[top_list[0][0]]
         result[1] = FAQ_TYPE[top_list[0][0]]
         faq_id = FAQ_ID[top_list[0][0]]
-        print(type(result[0]))
+
         store_data(input, faq_id)
         print("User input recorded!")
 
         if result[1] =="buttons":
-            print(result[0])
-            # print(len(result[0]))
-            # buttonList = ast.literal_eval(result[0])  
             buttonList = result[0].split(",")
-            print(buttonList)
             buttons = []
-            # [{'payload': 'great', 'title': 'great'}, {'payload': 'super sad', 'title': 'super sad'}]
+            
             for i in range( len(buttonList) ):
                 buttons.append({"payload": buttonList[i], "title": buttonList[i]})
             responses = []  
-            # for i in range(len(buttons)):
+          
             responses.append({'recipient_id': 'default', result[1] : buttons})
             responses_message = {"status":"success","response":responses}
             response.set_data(json.dumps(responses_message))

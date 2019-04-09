@@ -1,4 +1,7 @@
-﻿## Setup and installation
+﻿## Author : LU JIANAN 
+## Date: 9th April 2019
+
+## Setup and installation
 
 If you haven’t installed Rasa NLU and Rasa Core yet, you can do it by navigating to the project directory and running:  
 ```
@@ -25,6 +28,7 @@ This starter-pack contains some training data and the main files which you can u
 	- deny
 	- joke
 	- name (examples of this intent contain an entity called 'name')
+	- mood
 	
 - **nlu_config.yml** file contains the configuration of the Rasa NLU pipeline:  
 ```text
@@ -40,6 +44,10 @@ pipeline: spacy_sklearn
 - **actions.py** file contains the code of a custom action which retrieves a Chuck Norris joke by making an external API call.
 - **endpoints.yml** file contains the webhook configuration for custom action.  
 - **policies.yml** file contains the configuration of the training policies for Rasa Core model.
+
+### Rasa Core model Training Setup
+
+- **Makefile** file contains detail training setup
 
 ## Reference
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { OneconnectchatbotService, Message } from '../oneconnectchatbot.service';
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
-// import 'rxjs/add/operator/scan';
+
 
 @Component({
 	selector: 'app-chatbot',
@@ -24,17 +24,6 @@ export class ChatbotComponent implements OnInit {
 	constructor(private chat:OneconnectchatbotService) { }
 
 	getMessage(){
-
-		// this.chat.getData("welcome_msg").subscribe(data => {
-
-    //   this.welcomeMsg = data["response"];
-
-		// 	const botMessage = new Message("text",this.welcomeMsg,'bot');
-		// 	this.chat.update(botMessage);
-
-		// 	console.log(this.welcomeMsg);
-
-    // } );
     var content = [];
     var welcomeMsg = "Hi, I am OneConnectChatBot!. How can I help you?";
     content.push(welcomeMsg);
@@ -69,7 +58,6 @@ export class ChatbotComponent implements OnInit {
 
 			this.responseMsgList = data["response"];
 
-
 			for(let i = 0;i < this.responseMsgList.length; i++){
 
 				var value : any = this.responseMsgList[i];
@@ -96,7 +84,9 @@ export class ChatbotComponent implements OnInit {
           console.log("==============content==============");
           console.log(content);
 
-				}
+				}else if(value.audio != null){
+
+        }
 
 				const botMessage = new Message(type,content,'bot');
 				this.chat.update(botMessage);
