@@ -11,7 +11,7 @@ pip install -r requirements.txt
 You also need to install a spaCy English language model. You can install it by running:
 
 ```
-python -m spacy download en
+python -m spacy download en_core_web_lg
 ```
 
 

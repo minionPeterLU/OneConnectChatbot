@@ -4,7 +4,6 @@ six==1.11.0
 redis==2.10.6
 fakeredis==0.10.3
 future==0.16.0
-numpy==1.14.5
 typing==3.6.4
 ruamel.yaml==0.15.37
 requests~=2.20
@@ -18,7 +17,6 @@ networkx==2.1
 pykwalify<=1.6.0
 coloredlogs==10.0
 flask==1.0.2
-flask_cors==3.0.4
 flask_bootstrap
 flask_sqlalchemy
 flask_cors
@@ -47,4 +45,3 @@ pandas
 wtforms
 uwsgi
 pymysql
-mysqlclient
