@@ -11,7 +11,7 @@ import { enableProdMode } from '@angular/core';
 import { FileSaverModule } from 'ngx-filesaver';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule,HttpClientXsrfModule } from '@angular/common/http';
-
+import { NgScrollbarModule } from 'ngx-scrollbar';
 
 enableProdMode();
 
@@ -24,13 +24,14 @@ enableProdMode();
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
+    FileSaverModule,
     HttpClientModule,
     HttpClientXsrfModule.withOptions({
       cookieName: 'prep_answers',
       headerName: 'Set-Cookie',
     }),
-    FormsModule,
-    FileSaverModule
+    NgScrollbarModule
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]

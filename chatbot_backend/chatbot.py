@@ -1,3 +1,4 @@
+from bert_serving.client import BertClient
 from collections import OrderedDict
 from datetime import datetime, timezone, timedelta
 from dateutil import parser
@@ -14,7 +15,7 @@ import json
 import requests
 import re
 import spacy
-# import speech_recognition as sr
+
 
 NLP = spacy.load('en_core_web_lg')
 interpreter = RasaNLUInterpreter('models/current/nlu')
@@ -79,6 +80,9 @@ def store_data(input,faq_id):
         conn.commit()
         conn.close()
 
+#=================================================#
+# Use NLP Model to handle User Input and response #
+#=================================================#
 # Entry point of input from front-end
 def process_input(input, response):
 
@@ -87,8 +91,14 @@ def process_input(input, response):
     # load FAQ from Database to NLP pipelines
     if len(FAQ_QN) == 0 or len(FAQ_ANS) == 0 or len(FAQ_ID) == 0:
         load_data()
-    
-    
+
+    # For Future Development
+    # bc = BertClient(port=5555, port_out=5556)
+    # doc_vecs = bc.encode(FAQ_QN)
+
+    #=====================================================================================
+    # Trained Rasa_NLU[Spacy] Model to handle the FAQ questions similarity matching 
+    #=====================================================================================
     # Put into NLP pipeline
     input_vector = NLP(input)
     print("=========User Input===========")
@@ -108,6 +118,7 @@ def process_input(input, response):
     for j in range(3):    
         top_list.append([similarity_list[topNum-j][1],similarity_list[topNum-j][0]])
 
+    #=====================================================================================
 
     # Decide the correct answer to return based on similarity rate
     # Most similar FAQ has a similarity rate of > 90%  
@@ -136,6 +147,10 @@ def process_input(input, response):
             responses_message = {"status":"success","response":responses}
             response.set_data(json.dumps(responses_message))
             print(responses_message)
+            
+    #=====================================================================================
+    # Trained Rasa_Core Model to handle general conversation
+    #=====================================================================================
     else :
         faq_id = -1
         store_data(input, faq_id)
@@ -147,3 +162,4 @@ def process_input(input, response):
 
         responses_message = {"status":"success","response":responses}
         response.set_data(json.dumps(responses_message))
+    

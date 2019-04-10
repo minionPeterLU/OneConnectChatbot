@@ -1,5 +1,4 @@
 <div>
-	<!-- <img class="avatar" src="{{url_for('static', filename='img/oneconnect_logo.png')}}" style="align-content: center"/>       -->
 	<h1 style="text-align:center">
 		OneConnectChatbot
 	</h1>
@@ -8,59 +7,46 @@
 <div class="row">
 	<div class="col-sm-6">
 		<div class="row">
-
 			<div class="chat_window">
 
         <ul class="messages">
-            <ng-container *ngFor="let message of messages | async">
-              <li class="message" [ngClass]="{
-                  'left appeared':message.sentBy === 'bot',
-                  'right appeared':message.sentBy === 'user' }">
-                <div class="text_wrapper">
-                  <div id="contentInside" *ngFor="let content of message.content;">
+          <!-- <app-audio></app-audio>
+          <br> -->
+          <ng-container *ngFor="let message of messages | async">
+            <li class="message" [ngClass]="{
+                'left appeared':message.sentBy === 'bot',
+                'right appeared':message.sentBy === 'user' }">
+              <div class="text_wrapper">
+                <div id="contentInside" *ngFor="let content of message.content;">
+                  <ng-container *ngIf="message.type == 'button'; else notbutton">
+                    <button class="btn btn-info" value="content.title" style="margin-bottom: 10px;" (click)="sendMessage(content.payload)">
+                        {{content.title}}
+                    </button>
+                    <br>
+                  </ng-container>
 
-                    <ng-container *ngIf="message.type == 'button'; else notbutton">
-
-                      <button class="btn btn-info" value="content.title" style="margin-bottom: 10px;" (click)="sendMessage(content.payload)">
-                          {{content.title}}
-                      </button>
-
-                      <br>
-
-                    </ng-container>
-
-                    <ng-template #notbutton>
-                      <div class={{message.type}} [innerHTML]="content">
-                          {{content}}
-                      </div>
-                      <br>
-                    </ng-template>
-
-                  </div>
+                  <ng-template #notbutton>
+                    <div class={{message.type}} [innerHTML]="content">
+                        {{content}}
+                    </div>
+                    <br>
+                  </ng-template>
                 </div>
-              </li>
-            </ng-container>
+              </div>
+            </li>
+          </ng-container>
         </ul>
 
-
         <div class="bottom_wrapper clearfix">
-
-          <!-- <app-audio></app-audio> -->
-
           <div class="message_input_wrapper">
-
             <input class="message_input" [(ngModel)]="messageInput" (keyup.enter)="sendMessage()" placeholder="Say Hi to begin chat..."
-                   data-gramm="true"  data-txt_gramm_id="c8963586-c2d2-429d-225f-f33fbcae1346"
+                  data-gramm="true"  data-txt_gramm_id="c8963586-c2d2-429d-225f-f33fbcae1346"
                 data-gramm_id="c8963586-c2d2-429d-225f-f33fbcae1346" spellcheck="true" data-gramm_editor="true"/>
-
           </div>
-
-					<div class="send_message">
-						<div class="text" style="font-size:20px" (click)="sendMessage(null)">Send (S)</div>
+          <div class="send_message">
+            <div class="text" style="font-size:20px" (click)="sendMessage(null)">Send (S)</div>
           </div>
-
         </div>
-
 			</div>
 		</div>
 	</div>

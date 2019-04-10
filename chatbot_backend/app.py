@@ -37,6 +37,7 @@ app.secret_key = '6666'
 CORS(app, support_credentials=True)
 app.config.from_object(Config)
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+# Connect to your database (MySQL or PostgrelSQL)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Ljn@920506@localhost/chatbot'
 
 bootstrap = Bootstrap(app)

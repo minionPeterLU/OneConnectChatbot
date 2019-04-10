@@ -20,7 +20,6 @@ export class ChatbotComponent implements OnInit {
 	sendMsg: any;
 	messages: Observable<Message[]>;
 
-
 	constructor(private chat:OneconnectchatbotService) { }
 
 	getMessage(){
@@ -29,11 +28,9 @@ export class ChatbotComponent implements OnInit {
     content.push(welcomeMsg);
     const botMessage = new Message("text",content,'bot');
     this.chat.update(botMessage);
-    console.log(welcomeMsg);
 	}
 
 	sendMessage(element : any){
-
 
     var content = [];
     console.log(element);
@@ -93,10 +90,7 @@ export class ChatbotComponent implements OnInit {
 
         console.log("===========Value============")
         console.log(value);
-
 			}
-
-
 		});
 	}
 
